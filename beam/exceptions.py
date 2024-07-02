@@ -7,12 +7,10 @@ class UnknownBeamFileFormat(Exception):
 class UnsupportedBeamCompactTerm(Exception):
     '''UnsupportedBeamCompactTerm
     '''
-    pass
 
 class InvalidBeamHeader(Exception):
     '''Invalid BEAM file header.
     '''
-    pass
 
 class UnsupportedBeamExt(Exception):
     def __init__(self, tag):

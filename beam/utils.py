@@ -85,9 +85,8 @@ class BeamCompactTerm(object):
                 return BeamFpReg(literal.index)
             else:
                 raise UnsupportedBeamCompactTerm
-        
         raise UnsupportedBeamCompactTerm
-        
+ 
     @staticmethod
     def read_term(source):
         '''Read a tag.

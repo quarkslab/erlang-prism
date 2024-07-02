@@ -66,7 +66,7 @@ class CodeBlock(object):
     def has_in_link(self, block):
         '''Test if this code block can be reached by another block.
         '''
-        return (block in self.__ingoing)
+        return block in self.__ingoing
 
     def add_in_link(self, block):
         '''Add a new ingoing link.
@@ -77,7 +77,7 @@ class CodeBlock(object):
             return False
         self.__ingoing.append(block)
         return True
-    
+
     def has_out_link(self, block):
         '''Test if this code block can reach another block.
         '''
@@ -108,7 +108,7 @@ class CodeBlock(object):
     @property
     def in_refs(self):
         return self.__ingoing
-    
+
     @property
     def out_refs(self):
         return self.__outgoing
@@ -126,7 +126,7 @@ class CodeBlock(object):
         '''Convert code block to string
         '''
         output = ''
-        
+ 
         # Add annotations first
         for annotation in self.__annotations:
             output += '%s\n' % annotation
@@ -148,7 +148,7 @@ class CodeBlock(object):
 
     def __len__(self):
         return len(self.__insts)
-    
+
     def __getitem__(self, index):
         if index < len(self.__insts):
             return self.__insts[index]
@@ -192,7 +192,7 @@ class FunctionInfo(object):
             self.__arity,
             labels
         )
-    
+
     def to_string(self, module):
         return '%s:%s/%d' % (
             module.get_atom(self.__module),
@@ -262,7 +262,7 @@ class FunctionFinder(object):
 
     def __init__(self, itemizer):
         self.__itemizer = itemizer
-        
+
 
     def find_functions(self):
         '''Identify functions from the code section and fill in metadata
@@ -299,7 +299,7 @@ class FunctionFinder(object):
                 current_labels
             ))
         return functions
-    
+
 
     def graph_block(self, function, blocks, processed_blocks=None):
         '''Create a graph for a given code block.
@@ -314,7 +314,7 @@ class FunctionFinder(object):
                 current_block = self.__itemizer.get_block(block)
                 if prev_block is not None:
                     prev_block.set_next(current_block.label)
-                
+
                 # Look into each instruction of this block
                 for inst in current_block:
                     # has the instruction some jump targets ?
@@ -331,12 +331,12 @@ class FunctionFinder(object):
                                 self.graph_block(function, [target])
                             target_block = self.__itemizer.get_block(target)
                             target_block.add_in_link(current_block.label)
-                
+
                 # Block done, go on with the next one
                 prev_block = current_block
-            except IndexError as not_found:
+            except IndexError:
                 pass
-        
+
 
     def graph_function(self, function: FunctionInfo):
         '''Follow flow execution for a given function and create a code block
@@ -358,10 +358,10 @@ class Beamalyzer(object):
     def __init__(self, beam_module: BeamFile):
         self.__module = beam_module
         self.__functions = None
-        
+
         # Create our code itemizer
         self.__itemizer = CodeItemizer(self.__module.code)
-        
+
         # Create our function finder, find functions and graph code blocks.
         self.__funcfinder = FunctionFinder(self.__itemizer)
         self.__functions = self.__funcfinder.find_functions()
@@ -375,7 +375,7 @@ class Beamalyzer(object):
     @property
     def functions(self):
         return self.__functions
-    
+
     def add_function_caller(self, function_sig, caller):
         '''Annotate our function to specify a call from an external module
         '''
@@ -387,8 +387,6 @@ class Beamalyzer(object):
                     block.add_external_ref(caller)
                 return True
         return False
-
-        
 
     def __str__(self):
         '''Convert our internal code model into readable assembly code.
@@ -436,14 +434,14 @@ class Beamalyzer(object):
                         if ext_func in mods_funcs:
                             mod = mods_funcs[ext_func]
                             mod.add_function_caller(ext_func, function.to_string(self.__module))
-                    except Exception as err_:
+                    except Exception:
                         pass
                 elif isinstance(inst, BeamInstSelectVal) or isinstance(inst, BeamInstSelectTupleArity):
                     # Get the list of cases=>labels
                     cases = []
                     for i in range(int(len(inst.operands[2])/2)):
                         cases.append((inst.operands[2][i*2], inst.operands[2][i*2+1]))
-                    
+
                     # Annotate each label with the corresponding case
                     for value, label in cases:
                         case_block = self.__itemizer.get_block(label.index)
@@ -453,7 +451,7 @@ class Beamalyzer(object):
                                     self.__module.get_value(value),
                                     block.label
                                 ))
-                            except Exception as err:
+                            except Exception:
                                 pass
 
 
@@ -463,16 +461,16 @@ class Beamalyzer(object):
         '''
         a_next = []
         b_next = []
-        
+
         # Follow block A path (only next blocks)
         while block_a is not None:
             a_next.append(block_a)
             block_a = self.__itemizer.get_block(block_a).next
-            
+
             # Exit loop if block is terminal
             if block_a.is_terminal():
                 break
-        
+
         # Follow block B path
         while block_b is not None:
             b_next.append(block_b)
@@ -480,13 +478,13 @@ class Beamalyzer(object):
             # Exit loop if block is terminal
             if block_b.is_terminal():
                 break
-        
+
         # Keep same elements and return the first one
         for a in a_next:
             same = False
             for b in b_next:
                 if a==b:
                     return a
-        
+
         # No merging block, meaning each path goes its own way
         return None

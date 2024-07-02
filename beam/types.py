@@ -31,7 +31,7 @@ class BeamInteger(object):
     @property
     def value(self):
         return self.__value
-    
+
     def __repr__(self):
         return 'BeamInteger(%d)' % self.value
     
@@ -50,10 +50,10 @@ class BeamLiteral(object):
     @property
     def index(self):
         return self.__index
-    
+
     def __repr__(self):
         return 'BeamLiteral(%d)' % self.index
-    
+
 class BeamLabel(BeamLiteral):
     '''Represents a BEAM label
     '''
@@ -81,10 +81,10 @@ class BeamAtom(object):
             return BeamNIL()
         else:
             return self.__index
-        
+
     def is_nil(self):
-        return (self.__index == 0)
-    
+        return self.__index == 0
+
     def __repr__(self):
         if self.is_nil():
             return 'BeamNIL()'
@@ -101,7 +101,7 @@ class BeamXReg(object):
     @property
     def index(self):
         return self.__index
-    
+
     def __repr__(self):
         return 'X%d' % self.index
     
@@ -124,7 +124,7 @@ class BeamChar(object):
     @property
     def value(self):
         return chr(self.__char_value)
-    
+
     def __repr__(self):
         return 'BeamChar(%s)' % self.__char_value
     
@@ -137,7 +137,7 @@ class BeamExtList(object):
 
     def __len__(self):
         return len(self.__items)
-    
+
     def __getitem__(self, index):
         if index < len(self.__items):
             return self.__items[index]
@@ -150,7 +150,7 @@ class BeamExtList(object):
         #pairs = ','.join(['(%s, %s)' % (str(k), str(v)) for k,v in self.__pairs])
         items = ','.join(['%s' % str(v) for v in self.__items])
         return 'BeamList(%s)' % items
-    
+
 class BeamFpReg(object):
     '''Represents an FR register
     '''
@@ -161,11 +161,10 @@ class BeamFpReg(object):
     @property
     def index(self):
         return self.__index
-    
+
     def __repr__(self):
         return 'FR%d' % self.index
     
-        
 class BeamTypedReg(object):
     '''Typed register
     '''

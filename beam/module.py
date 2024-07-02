@@ -312,4 +312,3 @@ def load_beams_from_ez(filename):
 
     # Return BEAM files
     return beams
-

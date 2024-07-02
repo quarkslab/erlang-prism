@@ -197,15 +197,15 @@ class BeamExportEntry(object):
     @property
     def name(self):
         return self.__name
-    
+
     @property
     def arity(self):
         return self.__arity
-    
+
     @property
     def label(self):
         return self.__label
-    
+
     def __repr__(self):
         return 'BeamExportEntry(name:%d, arity:%d, label:%d)' % (
             self.__name,
@@ -237,7 +237,7 @@ class BeamExportSection(object):
         for i in range(exports_count):
             export_name, arity, lbl_offset = unpack('>III', content.read(3*4))
             section.add(export_name, arity, lbl_offset)
-        
+
         return section
 
 class BeamFunctionEntry(object):
@@ -255,27 +255,27 @@ class BeamFunctionEntry(object):
     @property
     def name(self):
         return self.__func_atom
-    
+
     @property
     def arity(self):
         return self.__arity
-    
+
     @property
     def offset(self):
         return self.__offset
-    
+
     @property
     def index(self):
         return self.__index
-    
+
     @property
     def nfree(self):
         return self.__nfree
-    
+
     @property
     def ouniq(self):
         return self.__ouniq
-    
+
     def __repr__(self):
         return 'BeamFunctionEntry(atom:%d, arity:%d, offset:%d, index:%d, nfree:%d, ouniq:%d)' % (
             self.__func_atom,
@@ -347,7 +347,7 @@ class BeamLiteralSection(object):
         # Read compressed data and decompress
         compressed_data = content.getvalue()[4:]
         data = BytesIO(decompress(compressed_data))
-        
+
         # Parse decompressed data
         value_count = unpack('>I', data.read(4))[0]
         for i in range(value_count):
@@ -360,11 +360,11 @@ class BeamLiteralSection(object):
             section.add(ext_term)
 
         return section
-    
+
 class BeamCodeSection(object):
     '''BEAM code parser
     '''
-    
+
     def __init__(self):
         self.__insts = []
 
@@ -384,7 +384,7 @@ class BeamCodeSection(object):
 
         # Parse code version
         code_version = unpack('>I', content.read(4))[0]
-        
+  
         # Read different objects counts
         instset, highest_opcode, label_count, fun_count = unpack('>IIII', content.read(4*4))
 

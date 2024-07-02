@@ -25,7 +25,7 @@ class BeamAtomCacheRef(BeamValueExt):
     @staticmethod
     def parse(content):
         return BeamAtomCacheRef(unpack('>B', content.read(1))[0])
-    
+
     def __str__(self):
         return 'BeamAtomCacheRef()'
 
@@ -33,14 +33,14 @@ class BeamSmallIntegerExt(BeamValueExt):
 
     def __init__(self, value):
         super().__init__(value)
-    
+
     @staticmethod
     def parse(content):
         return BeamSmallIntegerExt(unpack('>B', content.read(1))[0])
-    
+
     def __str__(self):
         return '0x%x' % self.value
-    
+
 class BeamIntegerExt(BeamValueExt):
 
     def __init__(self, value):
@@ -49,7 +49,7 @@ class BeamIntegerExt(BeamValueExt):
     @staticmethod
     def parse(content):
         return BeamIntegerExt(unpack('>I', content.read(4))[0])
-    
+
     def __str__(self):
         return '0x%x' % self.value
 
@@ -61,10 +61,10 @@ class BeamFloatExt(BeamValueExt):
     @staticmethod
     def parse(content):
         return BeamFloatExt(content.read(31))
-    
+
     def __str__(self):
         return '%s' % self.value
-    
+
 class BeamSmallTupleExt(object):
 
     def __init__(self, members):
@@ -73,9 +73,9 @@ class BeamSmallTupleExt(object):
     @property
     def members(self):
         return self.__members
-    
+
     def __len__(self):
-        return len(self.__members__)
+        return len(self.__members)
 
     @staticmethod
     def parse(content):
@@ -84,13 +84,13 @@ class BeamSmallTupleExt(object):
         for i in range(arity):
             tuple_value.append(BeamExtTerm.parse(content, marker_required=False))
         return BeamSmallTupleExt(tuple_value)
-    
+
     def __str__(self):
         return '(%s)' % ', '.join(map(str, self.__members))
 
 class BeamLargeTupleExt(BeamSmallTupleExt):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, members):
+        super().__init__(members)
 
     @staticmethod
     def parse(content):
@@ -98,7 +98,7 @@ class BeamLargeTupleExt(BeamSmallTupleExt):
         arity = unpack('>I', content.read(4))[0]
         for i in range(arity):
             tuple_value.append(BeamExtTerm.parse(content, marker_required=False))
-        return BeamSmallTupleExt(tuple_value)
+        return BeamLargeTupleExt(tuple_value)
 
     def __repr__(self):
         return str(self)
@@ -126,10 +126,10 @@ class BeamMapExt(object):
             map_obj.set(key, value)
 
         return map_obj
-    
+
     def __repr__(self):
         return 'BeamLargeTupleExt()'
-            
+ 
 
 class BeamListExt(object):
 
@@ -140,8 +140,8 @@ class BeamListExt(object):
         self.__items.append(item)
 
     def __len__(self):
-        return len(self.__items__)
-    
+        return len(self.__items)
+
     def __getitem__(self, index):
         if index < len(self.__items):
             return self.__items[index]
@@ -159,7 +159,7 @@ class BeamListExt(object):
         tail = BeamExtTerm.parse(content, marker_required=False)
 
         return list_obj
-    
+
     def __str__(self):
         members = ', '.join([str(i) for i in self.__items])
         return "[%s]" % members
@@ -171,7 +171,7 @@ class BeamNilExt(object):
     @staticmethod
     def parse(content):
         return BeamNilExt()
-    
+
     def __str__(self):
         return 'NIL'
 
@@ -195,7 +195,7 @@ class BeamBinaryExt(BeamValueExt):
     def parse(content):
         length = unpack('>I', content.read(4))[0]
         return BeamBinaryExt(content.read(length))
-    
+
     def __repr__(self):
         return '%s' % self.value
 
@@ -253,7 +253,7 @@ class BeamAtomUtf8Ext(BeamValueExt):
     def parse(content):
         length = unpack('>H', content.read(2))[0]
         return BeamAtomUtf8Ext(content.read(length))
-    
+
     def __str__(self):
         return str(self.value.decode('utf-8'))
     

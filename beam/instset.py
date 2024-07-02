@@ -46,7 +46,7 @@ class jumpref_op(object):
     def __call__(self, clazz):
         clazz.jumprefs = self.__targets
         return clazz
-    
+
 def exit_func(clazz):
     clazz.exit_func = True
     return clazz
@@ -1553,7 +1553,7 @@ class BeamInstLine(BeamInst):
 
     def __repr__(self):
         return 'Line(%s)' % self.operands[0]
-    
+
     def to_string(self, module):
         '''Line is followed by a literal representing a line number index.
         '''
