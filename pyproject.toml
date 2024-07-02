@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "erlang-prism"
+version = "1.0.0"
+description = "Prism, a light BEAM disassembler"
+authors = [
+    {name = "Damien Cauquil", email = "dcauquil@quarkslab.com"},
+]
+license = {text = "Apache"}
+keywords = ["erlang", "elixir", "beam", "disassembler"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Environment :: Console",
+    "Topic :: Software Development :: Disassemblers"
+]
+
+[project.scripts]
+erlang-prism = "beam.prism:prism_main"
+
+[options]
+python_requires = ">=3.6"
