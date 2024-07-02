@@ -30,3 +30,9 @@ $ erlang-prism -o my_batch_output -s ./beam-files
 ```
 
 In this case, *prism* will look for any BEAM or EZ file present in the provided directory and its subdirectories, disassemble them and store the disassembled files in the specified output directory `my_batch_output`.
+
+Syntax highlighting
+-------------------
+
+A [VIM syntax file is provided](vim-syntax/beamc.vim) and can be used to highlight the
+disassembled files, saved with the `.beamc` extension.
