@@ -446,6 +446,16 @@ class BeamInstLoopRec(BeamInst):
     def __init__(self):
         super().__init__('loop_rec')
 
+    def to_string(self, module):
+        '''
+        first operand: label
+        second operand: reg
+        '''
+        return self.format(module, 'label{:d}, {}', [
+            self.operands[0].index,
+            module.get_value(self.operands[1]),
+        ])
+
 @opcode(24, 1)
 class BeamInstLoopRecEnd(BeamInst):
     def __init__(self):
@@ -757,10 +767,16 @@ class BeamInstIsNil(BeamInst):
             label_ref = self.operands[0].value
         else:
             label_ref = self.operands[0].index
-        return self.format(module, 'label{:d}, {}', [
-            label_ref,
-            self.operands[1]
-        ])
+        if isinstance(self.operands[1], BeamLiteral):
+            return self.format(module, 'label{:d}, {}', [
+                label_ref,
+                self.operands[1].index
+            ])
+        else:
+            return self.format(module, 'label{:d}, {}', [
+                label_ref,
+                module.get_value(self.operands[1])
+            ])
 
 @opcode(53, 2)
 @branch
@@ -885,7 +901,7 @@ class BeamInstSelectTupleArity(BeamInst):
         cases = []
         for i in range(int(len(self.operands[2])/2)):
             cases.append((self.operands[2][i*2], self.operands[2][i*2+1]))
-        switches = ', '.join(['%s => label%d' % (module.get_value(k), v.index) for k,v in cases])
+        switches = ', '.join(['%d => label%d' % (k.index, v.index) for k,v in cases])
         return self.format(module, '{} label{:d} [{}]', [
             module.get_value(self.operands[0]),
             self.operands[1].index,
@@ -963,7 +979,7 @@ class BeamInstSetTupleElement(BeamInst):
         return self.format(module, '{}, {}, {}', [
             module.get_value(self.operands[0]),
             module.get_value(self.operands[1]),
-            module.get_value(self.operands[2]),
+            self.operands[2].index,
         ])
 
 #
@@ -1037,7 +1053,7 @@ class BeamInstCallFun(BeamInst):
 
     def to_string(self, module):
         return self.format(module, '{}', [
-            module.get_value(self.operands[0])
+            self.operands[0].index
         ])
 
 @opcode(76, 3)
@@ -1363,6 +1379,15 @@ class BeamInstGCBif1(BeamInst):
     def __init__(self):
         super().__init__('gc_bif1')
 
+    def to_string(self, module):
+        return self.format(module, 'label{:d}, {}, {}, {}, {}', [
+            self.operands[0].index,
+            self.operands[1].index,
+            self.operands[2].index,
+            module.get_value(self.operands[3]),
+            module.get_value(self.operands[4]),
+        ])
+
 @opcode(125, 6)
 class BeamInstGCBif2(BeamInst):
     def __init__(self):
@@ -1615,6 +1640,14 @@ class BeamInstIsTaggedTuple(BeamInst):
     def __init__(self):
         super().__init__('is_tagged_tuple')
 
+    def to_string(self, module):
+        return self.format(module, 'label{:d}, {}, {}, {}', [
+            self.operands[0].index,
+            module.get_value(self.operands[1]),
+            self.operands[2].index,
+            module.get_value(self.operands[3])
+        ])
+
 @opcode(160, 0)
 class BeamInstBuildStacktrace(BeamInst):
     def __init__(self):
@@ -1651,6 +1684,13 @@ class BeamInstBsGetTail(BeamInst):
     def __init__(self):
         super().__init__('bs_get_tail')
 
+    def to_string(self, module):
+        return self.format(module, "{}, {}, {}", [
+            module.get_value(self.operands[0]),
+            module.get_value(self.operands[1]),
+            self.operands[2].index
+        ])
+
 @opcode(166, 4)
 class BeamInstBsStartMatch3(BeamInst):
     def __init__(self):
@@ -1669,6 +1709,13 @@ class BeamInstBsGetPosition(BeamInst):
     def __init__(self):
         super().__init__('bs_get_position')
 
+    def to_string(self, module):
+        return self.format(module, "{}, {}, {}", [
+            module.get_value(self.operands[0]),
+            module.get_value(self.operands[1]),
+            self.operands[2].index
+        ])
+
 @opcode(168, 2)
 class BeamInstBsSetPosition(BeamInst):
     def __init__(self):
@@ -1684,6 +1731,14 @@ class BeamInstBsStartMatch4(BeamInst):
     def __init__(self):
         super().__init__('bs_start_match4')
 
+    def to_string(self, module):
+        return self.format(module, "{}, {}, {}, {}", [
+            module.get_value(self.operands[0]),
+            self.operands[0].index,
+            self.operands[2].index,
+            module.get_value(self.operands[3]),
+        ])
+
 #
 # OTP24
 #
@@ -1692,6 +1747,13 @@ class BeamInstBsStartMatch4(BeamInst):
 class BeamInstMakeFun3(BeamInst):
     def __init__(self):
         super().__init__('make_fun3')
+
+    def to_string(self, module):
+        return self.format(module, "{}, {}, {}", [
+            self.operands[0].index,
+            module.get_value(self.operands[1]),
+            module.get_value(self.operands[2]),
+        ])
 
 @opcode(172, 1)
 class BeamInstInitYRegs(BeamInst):
@@ -1735,10 +1797,27 @@ class BeamInstBsCreateBin(BeamInst):
     def __init__(self):
         super().__init__('bs_create_bin')
 
+    def to_string(self, module):
+        return self.format(module, '{}, {}, {}, {}, {}. {}', [
+            module.get_value(self.operands[0]),
+            module.get_value(self.operands[1]),
+            self.operands[2].index,
+            self.operands[3].index,
+            module.get_value(self.operands[4]),
+            module.get_value(self.operands[5])
+        ])
+
 @opcode(178, 3)
 class BeamInstCallFun2(BeamInst):
     def __init__(self):
         super().__init__('call_fun2')
+
+    def to_string(self, module):
+        return self.format(module, '{}, {}, {}', [
+            module.get_value(self.operands[0]),
+            self.operands[1].index,
+            module.get_value(self.operands[2])
+        ])
 
 @opcode(179, 0)
 class BeamInstNifStart(BeamInst):
@@ -1760,12 +1839,17 @@ class BeamInstUpdateRecord(BeamInst):
         super().__init__('update_record')
 
     def to_string(self, module):
-        return self.format(module, '{}, {}, {}, {}, {}', [
+        cases = []
+        for i in range(int(len(self.operands[4])/2)):
+            cases.append((self.operands[4][i*2], self.operands[4][i*2+1]))
+        switches = ', '.join(['%d => %s' % (k.index, module.get_value(v)) for k,v in cases])
+
+        return self.format(module, '{}, {}, {}, {}, [{}]', [
             module.get_value(self.operands[0]),
-            module.get_value(self.operands[1]),
+            self.operands[1].index,
             module.get_value(self.operands[2]),
             module.get_value(self.operands[3]),
-            module.get_value(self.operands[4])
+            switches
         ])
 
 @opcode(182, 3)
