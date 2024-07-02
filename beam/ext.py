@@ -85,6 +85,9 @@ class BeamSmallTupleExt(object):
             tuple_value.append(BeamExtTerm.parse(content, marker_required=False))
         return BeamSmallTupleExt(tuple_value)
 
+    def __repr__(self):
+        return '(%s)' % ', '.join(map(str, self.__members))
+
     def __str__(self):
         return '(%s)' % ', '.join(map(str, self.__members))
 
@@ -101,10 +104,10 @@ class BeamLargeTupleExt(BeamSmallTupleExt):
         return BeamLargeTupleExt(tuple_value)
 
     def __repr__(self):
-        return str(self)
+        return '(%s)' % ', '.join(map(str, self.members))
 
     def __str__(self):
-        return '(%s)' % ', '.join(map(str, self.__members))
+        return '(%s)' % ', '.join(map(str, self.members))
 
 class BeamMapExt(object):
     def __init__(self):
@@ -128,7 +131,12 @@ class BeamMapExt(object):
         return map_obj
 
     def __repr__(self):
-        return 'BeamLargeTupleExt()'
+        key_values = []
+        for key in self.__map:
+            key_values.append("%s => %s" % (
+                key, self.__map[key]
+            ))
+        return "{" + ", ".join(key_values) + "}"
  
 
 class BeamListExt(object):
