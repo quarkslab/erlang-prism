@@ -447,10 +447,16 @@ class Beamalyzer(object):
                         case_block = self.__itemizer.get_block(label.index)
                         if case_block is not None:
                             try:
-                                case_block.add_annotation('; Case {} (label{:d})'. format(
-                                    self.__module.get_value(value),
-                                    block.label
-                                ))
+                                if isinstance(inst, BeamInstSelectTupleArity):
+                                    case_block.add_annotation('; Case {} (label{:d})'. format(
+                                        value.index,
+                                        block.label
+                                    ))
+                                else:
+                                    case_block.add_annotation('; Case {} (label{:d})'. format(
+                                        self.__module.get_value(value),
+                                        block.label
+                                    ))
                             except Exception:
                                 pass
 
