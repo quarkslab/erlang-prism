@@ -293,6 +293,12 @@ class BeamInstBif0(BeamInst):
     def __init__(self):
         super().__init__('bif0')
 
+    def to_string(self, module):
+        return self.format(module, '{}, {}', [
+            module.get_export_str(self.operands[0].index),
+            module.get_value(self.operands[1]),
+        ])
+
 @opcode(10, 4)
 class BeamInstBif1(BeamInst):
     def __init__(self):
@@ -355,7 +361,7 @@ class BeamInstAllocateHeap(BeamInst):
     def to_string(self, module):
         return self.format(module, '{}, {}, {}', [
             self.get_value(0),
-            self.get_value(1),
+            module.get_value(self.operands[1]),
             self.get_value(2),
         ])
 
@@ -451,10 +457,16 @@ class BeamInstLoopRec(BeamInst):
         first operand: label
         second operand: reg
         '''
-        return self.format(module, 'label{:d}, {}', [
-            self.operands[0].index,
-            module.get_value(self.operands[1]),
-        ])
+        if isinstance(self.operands[1], BeamLiteral):
+            return self.format(module, 'label{:d}, {:d}', [
+                self.operands[0].index,
+                self.operands[1].index,
+            ])
+        else:    
+            return self.format(module, 'label{:d}, {}', [
+                self.operands[0].index,
+                module.get_value(self.operands[1]),
+            ])
 
 @opcode(24, 1)
 class BeamInstLoopRecEnd(BeamInst):
@@ -521,6 +533,14 @@ class BeamInstIntBxor(BeamInst):
 class BeamInstBsl(BeamInst):
     def __init__(self):
         super().__init__('-int_bsl')
+
+    def to_string(self, module):
+        return self.format(module, '{:d}, {}, {}, {}', [
+            self.operands[0].index,
+            module.get_value(self.operands[1]),
+            module.get_value(self.operands[2]),
+            self.operands[3].index,
+        ])
 
 @opcode(37, 4)
 class BeamInstBsr(BeamInst):
