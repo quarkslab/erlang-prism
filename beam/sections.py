@@ -227,6 +227,13 @@ class BeamExportSection(object):
     def add(self, name, arity, label):
         self.__exports.append(BeamExportEntry(name, arity, label))
 
+    def get(self, index):
+        '''Get specific export
+        '''
+        if index < len(self.__exports):
+            return self.__exports[index]
+        raise IndexError
+
     @staticmethod
     def parse(content):
         '''Parse BEAM export section

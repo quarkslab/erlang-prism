@@ -163,7 +163,11 @@ class BeamFile:
         elif isinstance(value, BeamLabel):
             return 'label%d' % value.index
         elif isinstance(value, BeamLiteral):
-            return '`%s`' % self.get_literal(value.index)
+            literal = self.get_literal(value.index)
+            if literal is not None:
+                return '`%s`' % literal
+            else:
+                return '%d' % value.index
         elif isinstance(value, BeamYReg):
             return 'Y%d' % value.index
         elif isinstance(value, BeamXReg):
@@ -220,6 +224,15 @@ class BeamFile:
                     exp.arity
                 ))
         return exports
+
+    def get_export_str(self, export_index):
+        '''Get export as string
+        '''
+        exp = self.__exports.get(export_index)
+        return '<:%s/%d>' % (
+            self.get_atom(exp.name),
+            exp.arity
+        )
 
     def local_functions(self):
         '''List functions
