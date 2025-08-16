@@ -3,7 +3,7 @@
 
 from .exceptions import UnsupportedBeamCompactTerm
 from .types import BeamAtom, BeamInteger, BeamChar, BeamLabel, BeamLiteral, \
-    BeamNIL, BeamXReg, BeamYReg, BeamExtList, BeamFpReg, BeamTypedReg
+    BeamNIL, BeamXReg, BeamYReg, BeamExtList, BeamExtAllocList, BeamFpReg, BeamTypedReg
 
 class BeamCompactTerm(object):
 
@@ -71,12 +71,12 @@ class BeamCompactTerm(object):
             return list_obj
         elif value_type == BeamCompactTerm.TYPE_EXT_ALST:
             # Read smallint
-            list_obj = BeamExtList()
+            list_obj = BeamExtAllocList()
             literal = BeamCompactTerm.read_term(source)
-            for i in range(int(literal.index/2)):
-                #key = BeamCompactTerm.read_term(source)
+            for i in range(int(literal.index)):
+                key = BeamCompactTerm.read_term(source)
                 value = BeamCompactTerm.read_term(source)
-                list_obj.add(value)
+                list_obj.add(key, value)
             return list_obj
         elif value_type == BeamCompactTerm.TYPE_EXT_FPREG:
             # Read tag and value

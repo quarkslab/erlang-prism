@@ -151,6 +151,29 @@ class BeamExtList(object):
         items = ','.join(['%s' % str(v) for v in self.__items])
         return 'BeamList(%s)' % items
 
+class BeamExtAllocList(object):
+    '''Represents a BEAM extended allocation list
+    '''
+    def __init__(self):
+        super().__init__()
+        self.__items = []
+
+    def __len__(self):
+        return len(self.__items)
+
+    def __getitem__(self, index):
+        if index < len(self.__items):
+            return self.__items[index]
+        raise IndexError
+
+    def add(self, key, value):
+        self.__items.append((key, value))
+
+    def __repr__(self):
+        #pairs = ','.join(['(%s, %s)' % (str(k), str(v)) for k,v in self.__pairs])
+        items = ','.join(['%s' % str(v) for v in self.__items])
+        return 'BeamAllocList(%s)' % items
+
 class BeamFpReg(object):
     '''Represents an FR register
     '''
