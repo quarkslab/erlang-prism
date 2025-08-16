@@ -364,9 +364,12 @@ class BeamLiteralSection(object):
         # Read uncompressed size
         uncompressed_size = unpack('>I', content.read(4))[0]
 
-        # Read compressed data and decompress
-        compressed_data = content.getvalue()[4:]
-        data = BytesIO(decompress(compressed_data))
+        # Read possibly compressed data and decompress if needed
+        if uncompressed_size == 0:
+            data = BytesIO(content.getvalue()[4:])
+        else:
+            compressed_data = content.getvalue()[4:]
+            data = BytesIO(decompress(compressed_data))
 
         # Parse decompressed data
         value_count = unpack('>I', data.read(4))[0]
