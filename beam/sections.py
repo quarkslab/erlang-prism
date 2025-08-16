@@ -64,12 +64,14 @@ class BeamLineSection(object):
         fname_index = 0
 
 
-        for i in range(num_line_refs):
+        i = 0
+        while i < num_line_refs:
             term = BeamCompactTerm.read_term(content)
             if isinstance(term, BeamInteger):
                 section.add_line_ref(fname_index, term.value)
+                i += 1
             elif isinstance(term, BeamAtom):
-                fname_index = term.index
+                fname_index = term.index - 1
                 assert fname_index < num_filenames
 
         for i in range(num_filenames):
