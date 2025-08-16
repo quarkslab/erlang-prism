@@ -3,7 +3,7 @@ from struct import unpack
 from zlib import decompress
 
 from .utils import BeamCompactTerm
-from .types import BeamInteger, BeamAtom
+from .types import BeamInteger, BeamAtom, BeamLiteral
 from .ext import BeamExtTerm
 from .instset import BeamInstParser
 
@@ -114,10 +114,21 @@ class BeamAtomSection(object):
         '''
         section = BeamAtomSection()
 
-        atoms_count = unpack('>I', content.read(4))[0]
+        atoms_count = unpack('>i', content.read(4))[0]
+
+        if atoms_count < 0:
+            atoms_count = -atoms_count
+            is_otp28 = True
+        else:
+            is_otp28 = False
 
         for i in range(atoms_count):
-            atom_length = unpack('>B', content.read(1))[0]
+            if is_otp28:
+                term = BeamCompactTerm.read_term(content)
+                assert isinstance(term, BeamLiteral)
+                atom_length = term.index
+            else:
+                atom_length = unpack('>B', content.read(1))[0]
             atom = content.read(atom_length)
             section.add(atom)
 
