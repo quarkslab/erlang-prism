@@ -234,6 +234,22 @@ class BeamSmallBigExt(object):
         value = content.read(n)
         return BeamSmallBigExt(sign, value)
 
+class BeamExportExt(object):
+    def __init__(self, module, function, arity):
+        self.__module = module
+        self.__function = function
+        self.__arity = arity
+
+    @staticmethod
+    def parse(content):
+        module = BeamExtTerm.parse(content, marker_required=False)
+        function = BeamExtTerm.parse(content, marker_required=False)
+        arity = BeamExtTerm.parse(content, marker_required=False)
+        return BeamExportExt(module.value, function.value, arity.value)
+
+    def __repr__(self):
+        return f'fun {self.__module.decode("utf-8")}:{self.__function.decode("utf-8")}/{self.__arity}'
+
 class BeamLargeBigExt(BeamSmallBigExt):
     def __init__(self, sign, value):
         super().__init__(sign, value)
@@ -300,6 +316,7 @@ class BeamExtTerm(object):
         108: BeamListExt,
         109: BeamBinaryExt,
         110: BeamSmallBigExt,
+        113: BeamExportExt,
         115: BeamSmallAtomExt,
         116: BeamMapExt,
         118: BeamAtomUtf8Ext,

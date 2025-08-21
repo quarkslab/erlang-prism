@@ -3,7 +3,7 @@ from struct import unpack
 from zlib import decompress
 
 from .utils import BeamCompactTerm
-from .types import BeamInteger, BeamAtom
+from .types import BeamInteger, BeamAtom, BeamLiteral
 from .ext import BeamExtTerm
 from .instset import BeamInstParser
 
@@ -64,12 +64,14 @@ class BeamLineSection(object):
         fname_index = 0
 
 
-        for i in range(num_line_refs):
+        i = 0
+        while i < num_line_refs:
             term = BeamCompactTerm.read_term(content)
             if isinstance(term, BeamInteger):
                 section.add_line_ref(fname_index, term.value)
+                i += 1
             elif isinstance(term, BeamAtom):
-                fname_index = term.index
+                fname_index = term.index - 1
                 assert fname_index < num_filenames
 
         for i in range(num_filenames):
@@ -112,10 +114,21 @@ class BeamAtomSection(object):
         '''
         section = BeamAtomSection()
 
-        atoms_count = unpack('>I', content.read(4))[0]
+        atoms_count = unpack('>i', content.read(4))[0]
+
+        if atoms_count < 0:
+            atoms_count = -atoms_count
+            is_otp28 = True
+        else:
+            is_otp28 = False
 
         for i in range(atoms_count):
-            atom_length = unpack('>B', content.read(1))[0]
+            if is_otp28:
+                term = BeamCompactTerm.read_term(content)
+                assert isinstance(term, BeamLiteral)
+                atom_length = term.index
+            else:
+                atom_length = unpack('>B', content.read(1))[0]
             atom = content.read(atom_length)
             section.add(atom)
 
@@ -351,9 +364,12 @@ class BeamLiteralSection(object):
         # Read uncompressed size
         uncompressed_size = unpack('>I', content.read(4))[0]
 
-        # Read compressed data and decompress
-        compressed_data = content.getvalue()[4:]
-        data = BytesIO(decompress(compressed_data))
+        # Read possibly compressed data and decompress if needed
+        if uncompressed_size == 0:
+            data = BytesIO(content.getvalue()[4:])
+        else:
+            compressed_data = content.getvalue()[4:]
+            data = BytesIO(decompress(compressed_data))
 
         # Parse decompressed data
         value_count = unpack('>I', data.read(4))[0]

@@ -1877,6 +1877,24 @@ class BeamInstBsMatch(BeamInst):
     def __init__(self):
         super().__init__('bs_match')
 
+#
+# OTP 27
+#
+
+@opcode(183, 2)
+class BeamInstExecutableLine(BeamInst):
+    def __init__(self):
+        super().__init__('executable_line')
+
+#
+# OTP 28
+#
+
+@opcode(184, 4)
+class BeamInstDebugLine(BeamInst):
+    def __init__(self):
+        super().__init__('debug_line')
+
 
 class BeamInstParser(object):
     '''BEAM instruction parser
